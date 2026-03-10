@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Microsoft Admin Launcher</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --panel: #111a2b;
+      --panel-2: #162238;
+      --text: #e8eefc;
+      --muted: #a9b7d6;
+      --accent: #4da3ff;
+      --accent-2: #7cc4ff;
+      --border: #243552;
+      --chip: #1d2b44;
+      --shadow: 0 10px 30px rgba(0,0,0,.28);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: linear-gradient(180deg, #0b1220 0%, #0d1424 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, rgba(77,163,255,.18), rgba(124,196,255,.08));
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .title-row {
+      display: flex;
+      gap: 16px;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+      letter-spacing: .2px;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--muted);
+      max-width: 900px;
+      font-size: .98rem;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: minmax(260px, 1.2fr) repeat(6, auto);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      background: #0a1120;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: .98rem;
+      outline: none;
+    }
+
+    input[type="search"]:focus,
+    .palette-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(77,163,255,.18);
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, #16233a 0%, #101a2d 100%);
+      color: var(--text);
+      padding: 11px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .btn.primary {
+      background: linear-gradient(180deg, rgba(77,163,255,.28), rgba(77,163,255,.14));
+      border-color: rgba(77,163,255,.45);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 12px 2px 0;
+      color: var(--muted);
+      font-size: .92rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      background: var(--chip);
+      color: var(--accent-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: .82rem;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .section {
+      background: linear-gradient(180deg, rgba(22,34,56,.95), rgba(15,23,40,.95));
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      min-height: 180px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .section::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: var(--section-border, var(--accent));
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+      padding-top: 4px;
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .section-toggle {
+      appearance: none;
+      border: 1px solid var(--section-border, var(--border));
+      background: var(--section-chip, var(--chip));
+      color: var(--section-border, var(--accent-2));
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      flex: 0 0 28px;
+    }
+
+    .section-icon {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      border-radius: 5px;
+    }
+
+    .section h2 {
+      font-size: 1rem;
+      margin: 0;
+      letter-spacing: .2px;
+      cursor: pointer;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--section-border, var(--accent-2));
+      background: var(--section-chip, var(--chip));
+      border: 1px solid var(--section-border, var(--border));
+      white-space: nowrap;
+    }
+
+    .links {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .section.collapsed .links {
+      display: none;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(16,25,43,.96), rgba(12,19,33,.96));
+      border-radius: 16px;
+      padding: 10px;
+      min-height: 98px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card-title {
+      font-size: .92rem;
+      font-weight: 700;
+      line-height: 1.15;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .card-title img {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      border-radius: 4px;
+    }
+
+    .card-note {
+      color: var(--muted);
+      font-size: .8rem;
+      line-height: 1.25;
+      flex: 1;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      width: 100%;
+    }
+
+    .mini {
+      width: 100%;
+      padding: 8px 6px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: #152239;
+      color: var(--text);
+      cursor: pointer;
+      font-size: .8rem;
+      font-weight: 600;
+    }
+
+    .mini:hover { border-color: var(--accent); }
+
+    .status {
+      position: sticky;
+      bottom: 12px;
+      margin-top: 18px;
+      background: rgba(9,15,26,.92);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      color: var(--muted);
+      backdrop-filter: blur(8px);
+      z-index: 5;
+    }
+
+    .palette {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,10,18,.68);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8vh;
+      z-index: 1000;
+    }
+
+    .palette.open { display: flex; }
+
+    .palette-panel {
+      width: min(760px, 92vw);
+      background: linear-gradient(180deg, rgba(16,25,43,.98), rgba(12,19,33,.98));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .palette-search {
+      width: 100%;
+      padding: 14px 16px;
+      border: 0;
+      border-bottom: 1px solid var(--border);
+      background: #0a1120;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .palette-results {
+      max-height: 60vh;
+      overflow: auto;
+      padding: 8px;
+    }
+
+    .palette-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      cursor: pointer;
+      color: var(--text);
+    }
+
+    .palette-item.active,
+    .palette-item:hover {
+      background: #152239;
+    }
+
+    .palette-item img {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 18px;
+      border-radius: 4px;
+    }
+
+    .palette-copy {
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .palette-meta {
+      color: var(--muted);
+      font-size: .8rem;
+      margin-left: auto;
+      padding-left: 10px;
+      white-space: nowrap;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1200px) {
+      .toolbar { grid-template-columns: 1fr repeat(3, auto); }
+    }
+
+    @media (max-width: 980px) {
+      .toolbar {
+        grid-template-columns: 1fr 1fr;
+      }
+      .links {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap { padding: 12px; }
+      .hero, .section { border-radius: 18px; }
+      .toolbar { grid-template-columns: 1fr; }
+      h1 { font-size: 1.55rem; }
+      .palette-panel { width: 96vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <div class="title-row">
+        <div>
+          <h1>Microsoft Admin Launcher</h1>
+          <div class="subtitle">
+            Fast, cross-platform access to Microsoft 365, Exchange, Azure, Entra, Defender, Purview, Intune, plus deep links for common admin tasks. Press <strong>Ctrl+K</strong> for Quick Launch.
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Search links, such as mailbox, conditional access, incidents, users..." />
+        <button class="btn primary" id="openCore">Open Core Set</button>
+        <button class="btn" id="copyCore">Copy Core Links</button>
+        <button class="btn" id="clearSearch">Clear</button>
+        <button class="btn" id="addCustom">Add Custom Link</button>
+        <button class="btn" id="exportCustom">Export Custom</button>
+        <button class="btn" id="quickLaunch">Quick Launch</button>
+      </div>
+
+      <div class="meta">
+        <div id="summary">Ready.</div>
+        <div class="chips" id="chips"></div>
+      </div>
+    </section>
+
+    <main class="grid" id="grid"></main>
+
+    <div class="status" id="status">Status: Ready.</div>
+  </div>
+
+  <div class="palette" id="palette">
+    <div class="palette-panel">
+      <input id="paletteSearch" class="palette-search" type="search" placeholder="Type to jump to a link..." />
+      <div id="paletteResults" class="palette-results"></div>
+    </div>
+  </div>
+
+  <script>
+    const FAVORITES_KEY = 'msAdminLauncherFavorites';
+    const CUSTOM_LINKS_KEY = 'msAdminLauncherCustomLinks';
+    const RECENT_KEY = 'msAdminLauncherRecent';
+    const COLLAPSED_KEY = 'msAdminLauncherCollapsedSections';
+
+    const fluentIcons = {
+      m365: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="12" height="24" rx="2" fill="#f25022"/><rect x="17" y="4" width="12" height="11" rx="2" fill="#7fba00"/><rect x="17" y="17" width="12" height="11" rx="2" fill="#00a4ef"/><rect x="3" y="4" width="12" height="11" rx="2" fill="#ffb900" opacity=".9"/></svg>`,
+      exchange: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="7" width="26" height="18" rx="3" fill="#0a6ed1"/><path d="M5.5 10.5L16 18l10.5-7.5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="5" width="9" height="22" rx="2" fill="#185abd"/><path d="M4 12h3M4 16h3M4 20h3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      azure: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M17 3l10 22h-7.4L9.8 3H17z" fill="#0078d4"/><path d="M15 29H4L15.3 10.5 22 25H15z" fill="#5ea0ef"/></svg>`,
+      entra: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="10" r="5" fill="#7f56d9"/><path d="M6 26c1.8-5.4 6-8 10-8s8.2 2.6 10 8" fill="#ff8b5e"/><circle cx="10" cy="12" r="3" fill="#a78bfa" opacity=".9"/><circle cx="22" cy="12" r="3" fill="#ffa06e" opacity=".9"/></svg>`,
+      defender: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 3l10 4v7c0 7.3-4.6 12.1-10 15-5.4-2.9-10-7.7-10-15V7l10-4z" fill="#107c10"/><path d="M16 8v16" stroke="#fff" stroke-width="2"/><path d="M9 14h14" stroke="#fff" stroke-width="2" opacity=".85"/></svg>`,
+      purview: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="4" width="20" height="24" rx="3" fill="#8e44ad"/><path d="M11 10h10M11 15h10M11 20h7" stroke="#fff" stroke-width="2" stroke-linecap="round"/><path d="M21 23l2 2 4-4" stroke="#f7d046" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      intune: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="22" height="16" rx="2.5" fill="#0078d4"/><rect x="11" y="23" width="10" height="2.5" rx="1" fill="#5ea0ef"/><rect x="13" y="25.5" width="6" height="2.5" rx="1" fill="#5ea0ef"/><path d="M11 13l3 3 7-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      security: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 4l9 3.6v6.8c0 6.6-4.3 11.2-9 13.8-4.7-2.6-9-7.2-9-13.8V7.6L16 4z" fill="#d83b01"/><circle cx="16" cy="16" r="4.2" fill="#fff"/><path d="M16 10.5v2.2M16 19.3v2.2" stroke="#d83b01" stroke-width="1.8" stroke-linecap="round"/></svg>`,
+      recent: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="12" fill="#f5c451"/><path d="M16 9v7l4.5 2.8" stroke="#3a2a00" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+      favorites: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 4l3.7 7.5L28 12.7l-6 5.9 1.4 8.4L16 23l-7.4 4 1.4-8.4-6-5.9 8.3-1.2L16 4z" fill="#f5c451"/></svg>`,
+      custom: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="22" height="22" rx="4" fill="#7a8899"/><path d="M16 10v12M10 16h12" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>`,
+      default: `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><path d="M13 19l6-6M11 21a4 4 0 010-5.7l3.3-3.3a4 4 0 015.7 5.7l-1.2 1.2M21 11a4 4 0 010 5.7l-3.3 3.3a4 4 0 01-5.7-5.7l1.2-1.2" fill="none" stroke="#7cc4ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    };
+
+    const sectionColors = {
+      'Recent': { border: '#5ea0ef', glow: 'rgba(94,160,239,.16)', chip: '#173252', icon: fluentIcons.recent },
+      'Favorites': { border: '#f5c451', glow: 'rgba(245,196,81,.20)', chip: '#4a3a12', icon: fluentIcons.favorites },
+      'Main Portals': { border: '#4da3ff', glow: 'rgba(77,163,255,.16)', chip: '#173252', icon: fluentIcons.m365 },
+      'Exchange': { border: '#50c2a8', glow: 'rgba(80,194,168,.16)', chip: '#123a33', icon: fluentIcons.exchange },
+      'Microsoft 365': { border: '#8f7cff', glow: 'rgba(143,124,255,.16)', chip: '#2e255d', icon: fluentIcons.m365 },
+      'Entra': { border: '#ff8b5e', glow: 'rgba(255,139,94,.16)', chip: '#4a2414', icon: fluentIcons.entra },
+      'Security': { border: '#ff5f7a', glow: 'rgba(255,95,122,.16)', chip: '#4a1723', icon: fluentIcons.defender },
+      'Compliance & Devices': { border: '#f0b84b', glow: 'rgba(240,184,75,.16)', chip: '#4b3713', icon: fluentIcons.purview },
+      'Exchange Troubleshooting': { border: '#7ee787', glow: 'rgba(126,231,135,.16)', chip: '#16381a', icon: fluentIcons.security },
+      'Custom Links': { border: '#9aa6b2', glow: 'rgba(154,166,178,.16)', chip: '#2a3440', icon: fluentIcons.custom }
+    };
+
+    const sections = [
+      {
+        name: 'Main Portals',
+        items: [
+          { name: 'M365 Admin', url: 'https://admin.microsoft.com', note: 'Microsoft 365 admin center' },
+          { name: 'Exchange Admin', url: 'https://admin.exchange.microsoft.com/#/homepage', note: 'Exchange Admin Center home' },
+          { name: 'Azure Portal', url: 'https://portal.azure.com', note: 'Azure resources and subscriptions' },
+          { name: 'Entra Admin', url: 'https://entra.microsoft.com', note: 'Identity, users, roles, CA' },
+          { name: 'Defender', url: 'https://security.microsoft.com', note: 'Security operations and incidents' },
+          { name: 'Purview', url: 'https://compliance.microsoft.com', note: 'Compliance and Purview' },
+          { name: 'Intune', url: 'https://intune.microsoft.com', note: 'Devices, apps, policies' },
+          { name: 'Apps Admin', url: 'https://config.office.com', note: 'Microsoft 365 Apps admin center' }
+        ]
+      },
+      {
+        name: 'Exchange',
+        items: [
+          { name: 'EXO Home', url: 'https://admin.exchange.microsoft.com/#/homepage', note: 'Exchange home' },
+          { name: 'Mailboxes', url: 'https://admin.exchange.microsoft.com/#/mailboxes', note: 'User mailboxes' },
+          { name: 'Shared Mailboxes', url: 'https://admin.exchange.microsoft.com/#/sharedmailboxes', note: 'Shared mailbox management' },
+          { name: 'Mail Flow Rules', url: 'https://admin.exchange.microsoft.com/#/transportrules', note: 'Transport rules / mail flow' },
+          { name: 'Message Trace', url: 'https://admin.exchange.microsoft.com/#/messagetrace', note: 'Trace message delivery' },
+          { name: 'Accepted Domains', url: 'https://admin.exchange.microsoft.com/#/accepteddomains', note: 'Accepted domains' },
+          { name: 'Connectors', url: 'https://admin.exchange.microsoft.com/#/connectors', note: 'Inbound and outbound connectors' },
+          { name: 'Migration', url: 'https://admin.exchange.microsoft.com/#/migration', note: 'Migration batches and endpoints' }
+        ]
+      },
+      {
+        name: 'Microsoft 365',
+        items: [
+          { name: 'Users', url: 'https://admin.microsoft.com/AdminPortal/Home#/users', note: 'Active users' },
+          { name: 'Groups', url: 'https://admin.microsoft.com/AdminPortal/Home#/groups', note: 'M365 groups and distribution groups' },
+          { name: 'Licenses', url: 'https://admin.microsoft.com/AdminPortal/Home#/licenses', note: 'Licenses and subscriptions' },
+          { name: 'Service Health', url: 'https://admin.microsoft.com/AdminPortal/Home#/servicehealth', note: 'Current advisories and incidents' },
+          { name: 'Reports', url: 'https://admin.microsoft.com/AdminPortal/Home#/reports', note: 'Usage reports' },
+          { name: 'Domains', url: 'https://admin.microsoft.com/Adminportal/Home#/Domains', note: 'Tenant domains' }
+        ]
+      },
+      {
+        name: 'Entra',
+        items: [
+          { name: 'Users', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_UsersAndTenants/UserManagementMenuBlade/~/AllUsers', note: 'Entra users' },
+          { name: 'Groups', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/GroupsManagementMenuBlade/~/AllGroups', note: 'Entra groups' },
+          { name: 'Roles', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/RolesManagementMenuBlade/~/DirectoryRoles', note: 'Directory roles' },
+          { name: 'App Registrations', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade', note: 'Application registrations' },
+          { name: 'Enterprise Apps', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/~/AppAppsPreview', note: 'Enterprise applications' },
+          { name: 'Conditional Access', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_ConditionalAccess/ConditionalAccessBlade/~/Policies', note: 'Conditional access policies' },
+          { name: 'MFA', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/MultifactorAuthenticationMenuBlade/~/Overview', note: 'MFA overview' },
+          { name: 'Audit Logs', url: 'https://entra.microsoft.com/#view/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/~/Audit', note: 'Directory audit logs' }
+        ]
+      },
+      {
+        name: 'Security',
+        items: [
+          { name: 'Incidents', url: 'https://security.microsoft.com/incidents', note: 'Security incidents' },
+          { name: 'Action Center', url: 'https://security.microsoft.com/action-center', note: 'Pending and completed actions' },
+          { name: 'Explorer', url: 'https://security.microsoft.com/threatexplorer_v3', note: 'Threat Explorer' },
+          { name: 'Email & Collaboration', url: 'https://security.microsoft.com/emailandcollaboverview', note: 'Email-focused protection views' },
+          { name: 'Policies & Rules', url: 'https://security.microsoft.com/securitypolicies', note: 'Security policies' },
+          { name: 'Submissions', url: 'https://security.microsoft.com/reportsubmission', note: 'User and admin submissions' }
+        ]
+      },
+      {
+        name: 'Compliance & Devices',
+        items: [
+          { name: 'Purview Home', url: 'https://compliance.microsoft.com', note: 'Compliance portal' },
+          { name: 'Content Search', url: 'https://compliance.microsoft.com/contentsearchv2', note: 'Content searches' },
+          { name: 'DLP', url: 'https://compliance.microsoft.com/datalossprevention', note: 'Data loss prevention' },
+          { name: 'Intune Home', url: 'https://intune.microsoft.com', note: 'Intune admin center' },
+          { name: 'Devices', url: 'https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesMenu/~/overview', note: 'Managed devices' },
+          { name: 'Apps', url: 'https://intune.microsoft.com/#view/Microsoft_Intune_Apps/ClientAppsMenu/~/appOverview', note: 'Managed apps' }
+        ]
+      },
+      {
+        name: 'Exchange Troubleshooting',
+        items: [
+          { name: 'Message Trace', url: 'https://admin.exchange.microsoft.com/#/messagetrace', note: 'Classic Exchange message trace' },
+          { name: 'Threat Explorer', url: 'https://security.microsoft.com/threatexplorer_v3', note: 'Deep email telemetry and verdicts' },
+          { name: 'Quarantine', url: 'https://security.microsoft.com/quarantine', note: 'Review and release quarantined messages' },
+          { name: 'Real-Time Detections', url: 'https://security.microsoft.com/realtimereports', note: 'Recent detections and blocking activity' },
+          { name: 'Mail Flow Rules', url: 'https://admin.exchange.microsoft.com/#/transportrules', note: 'Transport rules and routing logic' },
+          { name: 'Connectors', url: 'https://admin.exchange.microsoft.com/#/connectors', note: 'Hybrid, relay, and gateway connectors' },
+          { name: 'Accepted Domains', url: 'https://admin.exchange.microsoft.com/#/accepteddomains', note: 'Domain routing and accepted domains' },
+          { name: 'Mail Flow Overview', url: 'https://admin.exchange.microsoft.com/#/mailflow', note: 'Mail flow overview page' },
+          { name: 'Mail Flow Insights', url: 'https://admin.exchange.microsoft.com/#/insights', note: 'Filtering and mail flow anomalies' },
+          { name: 'Mailboxes', url: 'https://admin.exchange.microsoft.com/#/mailboxes', note: 'Start mailbox-specific troubleshooting' }
+        ]
+      }
+    ];
+
+    const coreUrls = [
+      'https://admin.microsoft.com',
+      'https://admin.exchange.microsoft.com/#/homepage',
+      'https://portal.azure.com',
+      'https://entra.microsoft.com',
+      'https://security.microsoft.com'
+    ];
+
+    const grid = document.getElementById('grid');
+    const search = document.getElementById('search');
+    const summary = document.getElementById('summary');
+    const statusEl = document.getElementById('status');
+    const chips = document.getElementById('chips');
+    const openCore = document.getElementById('openCore');
+    const copyCore = document.getElementById('copyCore');
+    const clearSearch = document.getElementById('clearSearch');
+    const addCustomBtn = document.getElementById('addCustom');
+    const exportCustomBtn = document.getElementById('exportCustom');
+    const quickLaunchBtn = document.getElementById('quickLaunch');
+    const palette = document.getElementById('palette');
+    const paletteSearch = document.getElementById('paletteSearch');
+    const paletteResults = document.getElementById('paletteResults');
+
+    function svgDataUrl(svg) {
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+    }
+
+    function loadFavorites() {
+      try {
+        return new Set(JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]'));
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveFavorites() {
+      localStorage.setItem(FAVORITES_KEY, JSON.stringify([...favorites]));
+    }
+
+    function loadCustomLinks() {
+      try {
+        return JSON.parse(localStorage.getItem(CUSTOM_LINKS_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCustomLinks() {
+      localStorage.setItem(CUSTOM_LINKS_KEY, JSON.stringify(customLinks));
+    }
+
+    function loadRecent() {
+      try {
+        return JSON.parse(localStorage.getItem(RECENT_KEY) || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveRecent() {
+      localStorage.setItem(RECENT_KEY, JSON.stringify(recent.slice(0, 10)));
+    }
+
+    function loadCollapsed() {
+      try {
+        return new Set(JSON.parse(localStorage.getItem(COLLAPSED_KEY) || '[]'));
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveCollapsed() {
+      localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...collapsedSections]));
+    }
+
+    const favorites = loadFavorites();
+    const customLinks = loadCustomLinks();
+    let recent = loadRecent();
+    const collapsedSections = loadCollapsed();
+    const favoritesSection = { name: 'Favorites', items: [] };
+    const recentSection = { name: 'Recent', items: [] };
+
+    function setStatus(msg) {
+      statusEl.textContent = `Status: ${msg}`;
+    }
+
+    function rememberRecent(item) {
+      recent = [{ name: item.name, url: item.url, note: item.note }, ...recent.filter(r => r.url !== item.url)].slice(0, 10);
+      saveRecent();
+    }
+
+    function openUrl(url, item = null) {
+      window.open(url, '_blank', 'noopener');
+      if (item) {
+        rememberRecent(item);
+        render();
+      }
+      setStatus(`Opened ${url}`);
+    }
+
+    async function copyText(text, label = 'Copied to clipboard.') {
+      try {
+        await navigator.clipboard.writeText(text);
+        setStatus(label);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        setStatus(label);
+      }
+    }
+
+    function iconForSection(name) {
+      return svgDataUrl((sectionColors[name] && sectionColors[name].icon) || fluentIcons.default);
+    }
+
+    function getIcon(item) {
+      const n = `${item.name} ${item.note}`.toLowerCase();
+      if (n.includes('exchange') || n.includes('mail') || n.includes('trace') || n.includes('connector') || n.includes('migration')) return svgDataUrl(fluentIcons.exchange);
+      if (n.includes('azure')) return svgDataUrl(fluentIcons.azure);
+      if (n.includes('entra') || n.includes('aad') || n.includes('directory') || n.includes('conditional') || n.includes('mfa') || n.includes('audit')) return svgDataUrl(fluentIcons.entra);
+      if (n.includes('defender') || n.includes('incident') || n.includes('threat') || n.includes('security') || n.includes('quarantine') || n.includes('submission') || n.includes('action center')) return svgDataUrl(fluentIcons.defender);
+      if (n.includes('intune') || n.includes('device') || n.includes('app overview')) return svgDataUrl(fluentIcons.intune);
+      if (n.includes('compliance') || n.includes('dlp') || n.includes('purview') || n.includes('content search')) return svgDataUrl(fluentIcons.purview);
+      if (n.includes('m365') || n.includes('admin') || n.includes('license') || n.includes('report') || n.includes('service health') || n.includes('domain') || n.includes('groups') || n.includes('users')) return svgDataUrl(fluentIcons.m365);
+      return svgDataUrl(fluentIcons.default);
+    }
+
+    function buildChips() {
+      chips.innerHTML = '';
+      allSections().forEach(section => {
+        const chip = document.createElement('button');
+        chip.className = 'chip';
+        chip.textContent = section.name;
+        chip.addEventListener('click', () => {
+          search.value = section.name;
+          render();
+        });
+        chips.appendChild(chip);
+      });
+    }
+
+    function allSections() {
+      const sectionsCopy = sections.map(s => ({ ...s, items: [...s.items] }));
+      if (customLinks.length) {
+        sectionsCopy.push({ name: 'Custom Links', items: [...customLinks] });
+      }
+      const allItems = sectionsCopy.flatMap(s => s.items);
+      favoritesSection.items = allItems.filter(i => favorites.has(i.url));
+      recentSection.items = recent.map(r => ({ ...r }));
+
+      const output = [];
+      if (recentSection.items.length) output.push(recentSection);
+      if (favoritesSection.items.length) output.push(favoritesSection);
+      output.push(...sectionsCopy);
+      return output;
+    }
+
+    function toggleFavorite(item) {
+      if (favorites.has(item.url)) {
+        favorites.delete(item.url);
+        setStatus(`Removed ${item.name} from favorites.`);
+      } else {
+        favorites.add(item.url);
+        setStatus(`Added ${item.name} to favorites.`);
+      }
+      saveFavorites();
+      buildChips();
+      render();
+    }
+
+    function toggleSection(sectionName) {
+      if (collapsedSections.has(sectionName)) {
+        collapsedSections.delete(sectionName);
+      } else {
+        collapsedSections.add(sectionName);
+      }
+      saveCollapsed();
+      render();
+    }
+
+    function addCustomLink() {
+      const name = prompt('Shortcut name:');
+      if (!name) return;
+      const url = prompt('URL:');
+      if (!url) return;
+      const note = prompt('Notes / description:', 'Custom shortcut') || 'Custom shortcut';
+      customLinks.push({ name, url, note });
+      saveCustomLinks();
+      buildChips();
+      render();
+      setStatus(`Added custom link: ${name}`);
+    }
+
+    function exportCustomLinks() {
+      if (!customLinks.length) {
+        setStatus('No custom links to export.');
+        return;
+      }
+      copyText(JSON.stringify(customLinks, null, 2), 'Copied custom links JSON to clipboard.');
+    }
+
+    function cardTemplate(item) {
+      const card = document.createElement('div');
+      card.className = 'card';
+      const favoriteIcon = favorites.has(item.url) ? '★' : '☆';
+
+      card.innerHTML = `
+        <div class="card-title" title="${item.url}">
+          <img src="${getIcon(item)}" alt="" />
+          <span>${item.name}</span>
+        </div>
+        <div class="card-note">${item.note}</div>
+        <div class="card-actions">
+          <button class="mini open-btn">Open</button>
+          <button class="mini copy-btn">Copy</button>
+          <button class="mini fav-btn" title="Toggle favorite">${favoriteIcon}</button>
+        </div>
+      `;
+
+      card.querySelector('.open-btn').addEventListener('click', () => openUrl(item.url, item));
+      card.querySelector('.copy-btn').addEventListener('click', () => copyText(item.url, `Copied ${item.name} URL.`));
+      card.querySelector('.fav-btn').addEventListener('click', () => toggleFavorite(item));
+      return card;
+    }
+
+    function render() {
+      const q = search.value.trim().toLowerCase();
+      grid.innerHTML = '';
+
+      let totalVisible = 0;
+      let visibleSections = 0;
+
+      allSections().forEach(section => {
+        const items = section.items.filter(item => {
+          if (!q) return true;
+          return [section.name, item.name, item.note, item.url].some(v => v.toLowerCase().includes(q));
+        });
+
+        if (!items.length) return;
+
+        totalVisible += items.length;
+        visibleSections += 1;
+
+        const sec = document.createElement('section');
+        sec.className = 'section';
+        if (collapsedSections.has(section.name)) {
+          sec.classList.add('collapsed');
+        }
+
+        const palette = sectionColors[section.name] || { border: 'var(--accent)', glow: 'rgba(77,163,255,.16)', chip: 'var(--chip)', icon: fluentIcons.default };
+        sec.style.setProperty('--section-border', palette.border);
+        sec.style.setProperty('--section-chip', palette.chip);
+        sec.style.boxShadow = `0 10px 30px ${palette.glow}`;
+
+        sec.innerHTML = `
+          <div class="section-header">
+            <div class="section-title-wrap">
+              <button class="section-toggle" title="Collapse or expand">${collapsedSections.has(section.name) ? '+' : '−'}</button>
+              <img class="section-icon" src="${iconForSection(section.name)}" alt="" />
+              <h2>${section.name}</h2>
+            </div>
+            <div class="section-badge">${items.length} link${items.length === 1 ? '' : 's'}</div>
+          </div>
+          <div class="links"></div>
+        `;
+
+        const links = sec.querySelector('.links');
+        items.forEach(item => links.appendChild(cardTemplate(item)));
+
+        sec.querySelector('.section-toggle').addEventListener('click', () => toggleSection(section.name));
+        sec.querySelector('h2').addEventListener('click', () => toggleSection(section.name));
+
+        grid.appendChild(sec);
+      });
+
+      summary.textContent = totalVisible
+        ? `Showing ${totalVisible} link${totalVisible === 1 ? '' : 's'} across ${visibleSections} section${visibleSections === 1 ? '' : 's'}. Favorites: ${favorites.size}. Custom: ${customLinks.length}. Recent: ${recent.length}.`
+        : 'No matches found.';
+
+      if (!totalVisible) {
+        const empty = document.createElement('section');
+        empty.className = 'section';
+        empty.style.setProperty('--section-border', '#9aa6b2');
+        empty.style.setProperty('--section-chip', '#2a3440');
+        empty.innerHTML = '<div class="section-header"><h2>No matches</h2></div><div class="card-note">Try searching for mailbox, trace, users, roles, conditional, incidents, devices, or domains.</div>';
+        grid.appendChild(empty);
+      }
+    }
+
+    function flatItems() {
+      return allSections().flatMap(section => section.items.map(item => ({ ...item, section: section.name })));
+    }
+
+    let paletteMatches = [];
+    let paletteIndex = 0;
+
+    function renderPalette(query = '') {
+      const q = query.trim().toLowerCase();
+      paletteMatches = flatItems().filter(item => {
+        if (!q) return true;
+        return [item.section, item.name, item.note, item.url].some(v => v.toLowerCase().includes(q));
+      }).slice(0, 24);
+
+      if (paletteIndex >= paletteMatches.length) paletteIndex = 0;
+      paletteResults.innerHTML = '';
+
+      if (!paletteMatches.length) {
+        const empty = document.createElement('div');
+        empty.className = 'palette-item';
+        empty.innerHTML = '<div class="palette-copy"><div>No matches</div><div class="hint">Try mailbox, trace, defender, users, or conditional.</div></div>';
+        paletteResults.appendChild(empty);
+        return;
+      }
+
+      paletteMatches.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = `palette-item${idx === paletteIndex ? ' active' : ''}`;
+        row.innerHTML = `
+          <img src="${getIcon(item)}" alt="" />
+          <div class="palette-copy">
+            <div>${item.name}</div>
+            <div class="card-note">${item.note}</div>
+          </div>
+          <div class="palette-meta">${item.section}</div>
+        `;
+        row.addEventListener('click', () => {
+          openUrl(item.url, item);
+          closePalette();
+        });
+        paletteResults.appendChild(row);
+      });
+    }
+
+    function openPalette() {
+      palette.classList.add('open');
+      paletteSearch.value = '';
+      paletteIndex = 0;
+      renderPalette('');
+      setTimeout(() => paletteSearch.focus(), 0);
+      setStatus('Quick Launch open.');
+    }
+
+    function closePalette() {
+      palette.classList.remove('open');
+      setStatus('Quick Launch closed.');
+    }
+
+    openCore.addEventListener('click', () => {
+      coreUrls.forEach(url => window.open(url, '_blank', 'noopener'));
+      setStatus('Opened core portal set.');
+    });
+
+    copyCore.addEventListener('click', () => {
+      copyText(coreUrls.join('\n'), 'Copied core links to clipboard.');
+    });
+
+    clearSearch.addEventListener('click', () => {
+      search.value = '';
+      render();
+      search.focus();
+      setStatus('Search cleared.');
+    });
+
+    addCustomBtn.addEventListener('click', addCustomLink);
+    exportCustomBtn.addEventListener('click', exportCustomLinks);
+    quickLaunchBtn.addEventListener('click', openPalette);
+    search.addEventListener('input', render);
+
+    paletteSearch.addEventListener('input', () => {
+      paletteIndex = 0;
+      renderPalette(paletteSearch.value);
+    });
+
+    paletteSearch.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        paletteIndex = Math.min(paletteIndex + 1, Math.max(0, paletteMatches.length - 1));
+        renderPalette(paletteSearch.value);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        paletteIndex = Math.max(paletteIndex - 1, 0);
+        renderPalette(paletteSearch.value);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const item = paletteMatches[paletteIndex];
+        if (item) {
+          openUrl(item.url, item);
+          closePalette();
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closePalette();
+      }
+    });
+
+    palette.addEventListener('click', (e) => {
+      if (e.target === palette) closePalette();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openPalette();
+      } else if (e.key === 'Escape' && palette.classList.contains('open')) {
+        closePalette();
+      }
+    });
+
+    buildChips();
+    render();
+  </script>
+</body>
+</html>
